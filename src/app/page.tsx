@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getStoryblokApi } from "@/lib/storyblok";
 import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
+import { getCacheBuster } from "@/lib/get-cache-buster";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +10,11 @@ export default async function Home() {
 
   const { data: directionsData } = await storyblokApi.get(
     "cdn/stories",
-    { content_type: "direction", version: "published" }
+    { content_type: "direction", version: "published", cv: getCacheBuster() }
   );
   const { data: coursesData } = await storyblokApi.get(
     "cdn/stories",
-    { content_type: "course", version: "published" }
+    { content_type: "course", version: "published", cv: getCacheBuster() }
   );
 
   const directions = directionsData.stories as DirectionStory[];

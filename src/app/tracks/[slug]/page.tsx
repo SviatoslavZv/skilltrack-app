@@ -1,6 +1,7 @@
 import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
 import type { CourseContent } from "@/lib/storyblok-types";
+import { getCacheBuster } from "@/lib/get-cache-buster";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
     const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
         version: "published",
         resolve_relations: "course.direction",
+        cv: getCacheBuster(),
     });
 
     const course = data.story.content as CourseContent;
