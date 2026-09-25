@@ -2,6 +2,8 @@ import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
 import type { CourseContent } from "@/lib/storyblok-types";
 
+export const dynamic = "force-dynamic";
+
 interface TrackPageProps {
     params: Promise<{ slug: string }>;
 }

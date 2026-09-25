@@ -22,3 +22,25 @@ export interface CourseContent {
   order: string;
   lessons: Lesson[];
 }
+
+export interface DirectionContent {
+  title: string;
+  description: string;
+}
+
+export interface DirectionStory {
+  uuid: string;
+  slug: string;
+  content: DirectionContent;
+}
+
+export interface CourseStory {
+  uuid: string;
+  slug: string;
+  content: {
+    title: string;
+    description: string;
+    direction: string;
+    order: string;
+  };
+}

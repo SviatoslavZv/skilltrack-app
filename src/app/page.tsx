@@ -1,52 +1,76 @@
+import Link from "next/link";
 import { getStoryblokApi } from "@/lib/storyblok";
+import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
 
-interface Lesson {
-  _uid: string;
-  title: string;
-  url: { url: string; target?: string };
-  author: string;
-  resourceType: string;
-  order: number;
-  durationMinutes: number;
-}
-
-interface CourseContent {
-  title: string;
-  description: string;
-  lessons: Lesson[];
-}
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const storyblokApi = getStoryblokApi();
-  const { data } = await storyblokApi.get("cdn/stories/html-css", {
-    version: "published",
-  });
 
-  const course = data.story.content as CourseContent;
-  const sortedLessons = [...course.lessons].sort((a, b) => a.order - b.order);
+  const { data: directionsData } = await storyblokApi.get(
+    "cdn/stories",
+    { content_type: "direction", version: "published" }
+  );
+  const { data: coursesData } = await storyblokApi.get(
+    "cdn/stories",
+    { content_type: "course", version: "published" }
+  );
+
+  const directions = directionsData.stories as DirectionStory[];
+  const courses = coursesData.stories as CourseStory[];
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-background text-primary px-8 py-16">
-      <h1 className="font-serif text-4xl">{course.title}</h1>
-      <p className="mt-4 max-w-xl text-center">{course.description}</p>
+    <main>
+      <header className="bg-dark px-6 py-10 text-on-dark">
+        <div className="mx-auto max-w-2xl">
+          <h1 className="font-serif text-4xl">SkillTrack</h1>
+          <p className="mt-2 max-w-lg text-base text-on-dark-muted">
+            Free, curated learning tracks for modern web development.
+          </p>
+        </div>
+      </header>
 
-      <ul className="mt-10 w-full max-w-xl space-y-3">
-        {sortedLessons.map((lesson) => (
-          <li key={lesson._uid} className="rounded bg-surface p-4">
-            <a
-              href={lesson.url.url}
-              target={lesson.url.target === "_blank" ? "_blank" : "_self"}
-              rel="noopener noreferrer"
-              className="font-medium underline"
-            >
-              {lesson.order}. {lesson.title}
-            </a>
-            <p className="mt-1 text-sm">
-              {lesson.author} · {lesson.durationMinutes} min · {lesson.resourceType}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <div className="mx-auto max-w-2xl px-6 py-10">
+        {directions.map((direction) => {
+          const directionCourses = courses
+            .filter((course) => course.content.direction === direction.uuid)
+            .sort((a, b) => Number(a.content.order) - Number(b.content.order));
+
+          return (
+            <section key={direction.uuid} className="mb-12">
+              <h2 className="font-serif text-2xl text-primary">
+                {direction.content.title}
+              </h2>
+              <p className="mt-1 text-sm text-accent">
+                {direction.content.description}
+              </p>
+
+              <ul className="mt-6 space-y-2">
+                {directionCourses.map((course) => (
+                  <li key={course.uuid}>
+                    <Link
+                      href={`/tracks/${course.slug}`}
+                      className="flex items-center justify-between rounded-lg border border-primary/50 bg-surface p-4 hover:bg-primary/5"
+                    >
+                      <div>
+                        <p className="font-serif text-lg">
+                          {course.content.title}
+                        </p>
+                        <p className="mt-0.5 text-sm text-accent">
+                          {course.content.description}
+                        </p>
+                      </div>
+                      <span aria-hidden="true" className="text-accent">
+                        →
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
     </main>
   );
 }
