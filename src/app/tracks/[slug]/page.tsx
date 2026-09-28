@@ -4,6 +4,7 @@ import type { CourseContent } from "@/lib/storyblok-types";
 import { getCacheBuster } from "@/lib/get-cache-buster";
 import { LessonCheckbox } from "@/components/lesson-checkbox";
 import { TrackProgress } from "@/components/track-progress";
+import { getTotalMinutes } from "@/lib/course-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +24,9 @@ export default async function TrackPage({ params }: TrackPageProps) {
     const course = data.story.content as CourseContent;
     const sortedLessons = [...course.lessons].sort(
         (a, b) => Number(a.order) - Number(b.order)
+
     );
-    const totalMinutes = sortedLessons.reduce(
-        (sum, lesson) => sum + Number(lesson.durationMinutes),
-        0
-    );
+    const totalMinutes = getTotalMinutes(sortedLessons);
 
     return (
         <main>
@@ -43,7 +42,15 @@ export default async function TrackPage({ params }: TrackPageProps) {
                     <p className="mt-2 text-sm text-on-dark-muted">
                         ~ {formatDuration(totalMinutes)} · {sortedLessons.length} lessons
                     </p>
-                    <TrackProgress lessonIds={sortedLessons.map((lesson) => lesson._uid)} />
+
+                    <div className="mt-4 max-w-xs">
+                        <TrackProgress
+                            lessonIds={sortedLessons.map((lesson) => lesson._uid)}
+                            trackTitle={course.title}
+                            variant="on-dark"
+                        />
+                    </div>
+
                 </div>
             </header>
 

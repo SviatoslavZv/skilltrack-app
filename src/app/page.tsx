@@ -2,6 +2,10 @@ import Link from "next/link";
 import { getStoryblokApi } from "@/lib/storyblok";
 import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
 import { getCacheBuster } from "@/lib/get-cache-buster";
+import { formatDuration } from "@/lib/format-duration";
+import { getTotalMinutes } from "@/lib/course-stats";
+import { TrackProgress } from "@/components/track-progress";
+
 
 export const dynamic = "force-dynamic";
 
@@ -47,27 +51,40 @@ export default async function Home() {
               </p>
 
               <ul className="mt-6 space-y-2">
-                {directionCourses.map((course) => (
-                  <li key={course.uuid}>
-                    <Link
-                      href={`/tracks/${course.slug}`}
-                      className="flex items-center justify-between rounded-lg border border-primary/50 bg-surface p-4 hover:bg-primary/5"
-                    >
-                      <div>
-                        <p className="font-serif text-lg">
-                          {course.content.title}
-                        </p>
-                        <p className="mt-0.5 text-sm text-accent">
-                          {course.content.description}
-                        </p>
-                      </div>
-                      <span aria-hidden="true" className="text-accent">
-                        →
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+                {directionCourses.map((course) => {
+                  const lessons = course.content.lessons;
+
+                  return (
+                    <li key={course.uuid}>
+                      <Link
+                        href={`/tracks/${course.slug}`}
+                        className="flex items-center justify-between gap-4 rounded-lg border border-primary/50 bg-surface p-4 hover:bg-primary/5"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-serif text-lg">{course.content.title}</p>
+                          <p className="mt-0.5 text-sm text-accent">
+                            {course.content.description}
+                          </p>
+                          <p className="mt-2 text-sm text-accent">
+                            {lessons.length} lessons · ~{" "}
+                            {formatDuration(getTotalMinutes(lessons))}
+                          </p>
+                          <div className="mt-3 max-w-xs">
+                            <TrackProgress
+                              lessonIds={lessons.map((lesson) => lesson._uid)}
+                              trackTitle={course.content.title}
+                            />
+                          </div>
+                        </div>
+                        <span aria-hidden="true" className="shrink-0 text-accent">
+                          →
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
+
             </section>
           );
         })}

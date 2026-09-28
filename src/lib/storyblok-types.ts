@@ -42,5 +42,6 @@ export interface CourseStory {
     description: string;
     direction: string;
     order: string;
+    lessons: Lesson[];
   };
 }

@@ -1,4 +1,5 @@
-type ProgressBarVariant = "on-light" | "on-dark";
+export type ProgressBarVariant = "on-light" | "on-dark";
+
 
 const TRACK_CLASSES: Record<ProgressBarVariant, string> = {
     "on-light": "bg-primary/15",
