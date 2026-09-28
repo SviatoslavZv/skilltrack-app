@@ -2,6 +2,7 @@ import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
 import type { CourseContent } from "@/lib/storyblok-types";
 import { getCacheBuster } from "@/lib/get-cache-buster";
+import { LessonCheckbox } from "@/components/lesson-checkbox";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,11 @@ export default async function TrackPage({ params }: TrackPageProps) {
                                     {formatDuration(Number(lesson.durationMinutes))}
                                 </p>
                             </div>
+
+                            <div className="ml-auto self-center pl-3">
+                                <LessonCheckbox lessonId={lesson._uid} lessonTitle={lesson.title} />
+                            </div>
+
                         </li>
                     ))}
                 </ol>
