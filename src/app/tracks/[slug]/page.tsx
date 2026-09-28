@@ -1,10 +1,11 @@
+import { notFound } from "next/navigation";
 import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
+import { getTotalMinutes } from "@/lib/course-stats";
 import type { CourseContent } from "@/lib/storyblok-types";
 import { getCacheBuster } from "@/lib/get-cache-buster";
 import { LessonCheckbox } from "@/components/lesson-checkbox";
 import { TrackProgress } from "@/components/track-progress";
-import { getTotalMinutes } from "@/lib/course-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -12,19 +13,32 @@ interface TrackPageProps {
     params: Promise<{ slug: string }>;
 }
 
+async function getCourseStory(slug: string) {
+    const storyblokApi = getStoryblokApi();
+
+    try {
+        const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
+            version: "published",
+            resolve_relations: "course.direction",
+            cv: getCacheBuster(),
+        });
+        return data.story;
+    } catch {
+        notFound();
+    }
+}
+
 export default async function TrackPage({ params }: TrackPageProps) {
     const { slug } = await params;
-    const storyblokApi = getStoryblokApi();
-    const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
-        version: "published",
-        resolve_relations: "course.direction",
-        cv: getCacheBuster(),
-    });
+    const story = await getCourseStory(slug);
 
-    const course = data.story.content as CourseContent;
+    if (story.content.component !== "course") {
+        notFound();
+    }
+
+    const course = story.content as CourseContent;
     const sortedLessons = [...course.lessons].sort(
         (a, b) => Number(a.order) - Number(b.order)
-
     );
     const totalMinutes = getTotalMinutes(sortedLessons);
 
@@ -42,7 +56,6 @@ export default async function TrackPage({ params }: TrackPageProps) {
                     <p className="mt-2 text-sm text-on-dark-muted">
                         ~ {formatDuration(totalMinutes)} · {sortedLessons.length} lessons
                     </p>
-
                     <div className="mt-4 max-w-xs">
                         <TrackProgress
                             lessonIds={sortedLessons.map((lesson) => lesson._uid)}
@@ -50,7 +63,6 @@ export default async function TrackPage({ params }: TrackPageProps) {
                             variant="on-dark"
                         />
                     </div>
-
                 </div>
             </header>
 
@@ -83,7 +95,6 @@ export default async function TrackPage({ params }: TrackPageProps) {
                             <div className="ml-auto self-center pl-3">
                                 <LessonCheckbox lessonId={lesson._uid} lessonTitle={lesson.title} />
                             </div>
-
                         </li>
                     ))}
                 </ol>
