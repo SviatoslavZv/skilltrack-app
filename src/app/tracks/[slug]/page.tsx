@@ -3,6 +3,7 @@ import { formatDuration } from "@/lib/format-duration";
 import type { CourseContent } from "@/lib/storyblok-types";
 import { getCacheBuster } from "@/lib/get-cache-buster";
 import { LessonCheckbox } from "@/components/lesson-checkbox";
+import { TrackProgress } from "@/components/track-progress";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
                     <p className="mt-2 text-sm text-on-dark-muted">
                         ~ {formatDuration(totalMinutes)} · {sortedLessons.length} lessons
                     </p>
+                    <TrackProgress lessonIds={sortedLessons.map((lesson) => lesson._uid)} />
                 </div>
             </header>
 
