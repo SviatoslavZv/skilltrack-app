@@ -12,14 +12,19 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const storyblokApi = getStoryblokApi();
 
-  const { data: directionsData } = await storyblokApi.get(
-    "cdn/stories",
-    { content_type: "direction", version: "published", cv: getCacheBuster() }
-  );
-  const { data: coursesData } = await storyblokApi.get(
-    "cdn/stories",
-    { content_type: "course", version: "published", cv: getCacheBuster() }
-  );
+
+  const cacheBuster = getCacheBuster();
+  const { data: directionsData } = await storyblokApi.get("cdn/stories", {
+    content_type: "direction",
+    version: "published",
+    ...(cacheBuster !== undefined && { cv: cacheBuster }),
+  });
+  const { data: coursesData } = await storyblokApi.get("cdn/stories", {
+    content_type: "course",
+    version: "published",
+    ...(cacheBuster !== undefined && { cv: cacheBuster }),
+  });
+
 
   const directions = directionsData.stories as DirectionStory[];
   const courses = coursesData.stories as CourseStory[];

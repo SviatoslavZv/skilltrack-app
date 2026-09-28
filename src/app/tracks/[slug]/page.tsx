@@ -17,11 +17,13 @@ async function getCourseStory(slug: string) {
     const storyblokApi = getStoryblokApi();
 
     try {
+        const cacheBuster = getCacheBuster();
         const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
             version: "published",
             resolve_relations: "course.direction",
-            cv: getCacheBuster(),
+            ...(cacheBuster !== undefined && { cv: cacheBuster }),
         });
+
         return data.story;
     } catch {
         notFound();
