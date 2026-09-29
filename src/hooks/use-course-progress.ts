@@ -5,6 +5,7 @@ export function useCourseProgress(lessonIds: string[]) {
     (state) =>
       lessonIds.filter((id) => state.completedLessonIds.includes(id)).length,
   );
+  const hasHydrated = useProgressStore((state) => state.hasHydrated);
 
-  return { completed, total: lessonIds.length };
+  return { completed, total: lessonIds.length, hasHydrated };
 }

@@ -20,10 +20,13 @@ export function TrackProgress({
     trackTitle,
     variant = "on-light",
 }: TrackProgressProps) {
-    const { completed, total } = useCourseProgress(lessonIds);
+    const { completed, total, hasHydrated } = useCourseProgress(lessonIds);
 
     return (
-        <div>
+        <div
+            className={`transition-opacity duration-200 ${hasHydrated ? "opacity-100" : "opacity-0"
+                }`}
+        >
             <p className={`text-sm ${LABEL_CLASSES[variant]}`}>
                 {completed} of {total} lessons completed
             </p>
