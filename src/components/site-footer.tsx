@@ -11,7 +11,7 @@ export function SiteFooter() {
                 <div className="text-right">
 
                     <a
-                        href="https://ko-fi.com/YOUR_USERNAME"
+                        href="https://ko-fi.com/sviatoslavzv"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline decoration-on-dark-muted/40 underline-offset-2 hover:text-on-dark hover:decoration-on-dark"
