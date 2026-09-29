@@ -1,7 +1,7 @@
 export function SiteFooter() {
     return (
         <footer className="bg-dark px-6 py-6 text-on-dark-muted">
-            <div className="mx-auto flex max-w-4xl justify-between text-sm">
+            <div className="mx-auto flex max-w-4xl flex-col gap-6 text-sm sm:flex-row sm:justify-between">
                 <div>
                     <p>SkillTrack is a free, ad-free collection of curated learning tracks.</p>
                     <p className="mt-2">
