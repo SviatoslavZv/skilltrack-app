@@ -7,9 +7,6 @@ export function SiteHeader() {
                 <Link href="/" className="font-serif text-xl text-primary">
                     SkillTrack
                 </Link>
-                <Link href="/" className="text-sm text-accent hover:text-primary">
-                    All tracks
-                </Link>
             </div>
         </header>
     );

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
@@ -48,9 +49,12 @@ export default async function TrackPage({ params }: TrackPageProps) {
         <main>
             <header className="bg-dark px-6 py-6 text-on-dark">
                 <div className="mx-auto max-w-2xl">
-                    <p className="text-sm text-on-dark-muted">
+                    <Link
+                        href={`/directions/${course.direction.slug}`}
+                        className="text-sm text-on-dark-muted underline decoration-on-dark-muted/40 underline-offset-2 hover:text-on-dark hover:decoration-on-dark"
+                    >
                         {course.direction.content.title}
-                    </p>
+                    </Link>
                     <h1 className="mt-1 font-serif text-3xl">{course.title}</h1>
                     <p className="mt-2 max-w-lg text-base text-on-dark-muted">
                         {course.description}

@@ -8,30 +8,24 @@ export interface Lesson {
   durationMinutes: string;
 }
 
-export interface Direction {
-  content: {
-    title: string;
-    description: string;
-  };
-}
-
-export interface CourseContent {
-  title: string;
-  description: string;
-  direction: Direction;
-  order: string;
-  lessons: Lesson[];
-}
-
 export interface DirectionContent {
   title: string;
   description: string;
+  order: string;
 }
 
 export interface DirectionStory {
   uuid: string;
   slug: string;
   content: DirectionContent;
+}
+
+export interface CourseContent {
+  title: string;
+  description: string;
+  direction: DirectionStory;
+  order: string;
+  lessons: Lesson[];
 }
 
 export interface CourseStory {

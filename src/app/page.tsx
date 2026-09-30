@@ -6,12 +6,10 @@ import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
 import { TrackProgress } from "@/components/track-progress";
 
-
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const storyblokApi = getStoryblokApi();
-
 
   const cacheBuster = getCacheBuster();
   const { data: directionsData } = await storyblokApi.get("cdn/stories", {
@@ -25,8 +23,10 @@ export default async function Home() {
     ...(cacheBuster !== undefined && { cv: cacheBuster }),
   });
 
+  const directions = (directionsData.stories as DirectionStory[]).sort(
+    (a, b) => Number(a.content.order) - Number(b.content.order),
+  );
 
-  const directions = directionsData.stories as DirectionStory[];
   const courses = coursesData.stories as CourseStory[];
 
   return (
@@ -41,58 +41,47 @@ export default async function Home() {
       </header>
 
       <div className="mx-auto max-w-2xl px-6 py-10">
-        {directions.map((direction) => {
-          const directionCourses = courses
-            .filter((course) => course.content.direction === direction.uuid)
-            .sort((a, b) => Number(a.content.order) - Number(b.content.order));
+        <ul className="space-y-2">
+          {directions.map((direction) => {
+            const directionCourses = courses.filter(
+              (course) => course.content.direction === direction.uuid,
+            );
+            const allLessons = directionCourses.flatMap(
+              (course) => course.content.lessons,
+            );
 
-          return (
-            <section key={direction.uuid} className="mb-12">
-              <h2 className="font-serif text-2xl text-primary">
-                {direction.content.title}
-              </h2>
-              <p className="mt-1 text-sm text-accent">
-                {direction.content.description}
-              </p>
-
-              <ul className="mt-6 space-y-2">
-                {directionCourses.map((course) => {
-                  const lessons = course.content.lessons;
-
-                  return (
-                    <li key={course.uuid}>
-                      <Link
-                        href={`/tracks/${course.slug}`}
-                        className="flex items-center justify-between gap-4 rounded-lg border border-primary/50 bg-surface p-4 hover:bg-primary/5"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="font-serif text-lg">{course.content.title}</p>
-                          <p className="mt-0.5 text-sm text-accent">
-                            {course.content.description}
-                          </p>
-                          <p className="mt-2 text-sm text-accent">
-                            {lessons.length} lessons · ~{" "}
-                            {formatDuration(getTotalMinutes(lessons))}
-                          </p>
-                          <div className="mt-3 max-w-xs">
-                            <TrackProgress
-                              lessonIds={lessons.map((lesson) => lesson._uid)}
-                              trackTitle={course.content.title}
-                            />
-                          </div>
-                        </div>
-                        <span aria-hidden="true" className="shrink-0 text-accent">
-                          →
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-
-            </section>
-          );
-        })}
+            return (
+              <li key={direction.uuid}>
+                <Link
+                  href={`/directions/${direction.slug}`}
+                  className="flex items-center justify-between gap-4 rounded-lg border border-primary/50 bg-surface p-4 hover:bg-primary/5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-serif text-lg">
+                      {direction.content.title}
+                    </p>
+                    <p className="mt-0.5 text-sm text-accent">
+                      {direction.content.description}
+                    </p>
+                    <p className="mt-2 text-sm text-accent">
+                      {directionCourses.length} tracks · ~{" "}
+                      {formatDuration(getTotalMinutes(allLessons))}
+                    </p>
+                    <div className="mt-3 max-w-xs">
+                      <TrackProgress
+                        lessonIds={allLessons.map((lesson) => lesson._uid)}
+                        trackTitle={direction.content.title}
+                      />
+                    </div>
+                  </div>
+                  <span aria-hidden="true" className="shrink-0 text-accent">
+                    →
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </main>
   );
