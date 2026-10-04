@@ -26,8 +26,16 @@ async function getCourseStory(slug: string) {
         });
 
         return data.story;
-    } catch {
-        notFound();
+    } catch (error) {
+        const status = (error as { status?: number })?.status;
+
+        if (status === 404) {
+            notFound();
+        }
+
+        throw new Error(
+            `Failed to load course "${slug}" from Storyblok (status: ${status ?? "network error"})`,
+        );
     }
 }
 
