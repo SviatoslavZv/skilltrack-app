@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import {
     getDirections,
     getDirectionBySlug,
@@ -18,6 +20,19 @@ export async function generateStaticParams() {
 
 interface DirectionPageProps {
     params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({
+    params,
+}: DirectionPageProps): Promise<Metadata> {
+    const { slug } = await params;
+    const { content } = await getDirectionBySlug(slug);
+
+    return buildPageMetadata({
+        title: content.title,
+        description: content.description,
+        path: `/directions/${slug}`,
+    });
 }
 
 export default async function DirectionPage({ params }: DirectionPageProps) {

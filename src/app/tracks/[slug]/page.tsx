@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import { getCourses, getCourseBySlug } from "@/lib/storyblok-queries";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
@@ -15,6 +17,19 @@ export async function generateStaticParams() {
 
 interface TrackPageProps {
     params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({
+    params,
+}: TrackPageProps): Promise<Metadata> {
+    const { slug } = await params;
+    const { content } = await getCourseBySlug(slug);
+
+    return buildPageMetadata({
+        title: content.title,
+        description: content.description,
+        path: `/tracks/${slug}`,
+    });
 }
 
 export default async function TrackPage({ params }: TrackPageProps) {
