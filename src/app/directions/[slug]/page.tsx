@@ -1,77 +1,29 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getStoryblokApi } from "@/lib/storyblok";
+import {
+    getDirections,
+    getDirectionBySlug,
+    getCoursesByDirection,
+} from "@/lib/storyblok-queries";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
 import { TrackProgress } from "@/components/track-progress";
-import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-    const storyblokApi = getStoryblokApi();
-    const { data } = await storyblokApi.get("cdn/stories", {
-        content_type: "direction",
-        version: "published",
-        per_page: 100,
-        cv: Date.now(),
-    });
+    const directions = await getDirections();
 
-    return (data.stories as { slug: string }[]).map((story) => ({
-        slug: story.slug,
-    }));
+    return directions.map((direction) => ({ slug: direction.slug }));
 }
 
 interface DirectionPageProps {
     params: Promise<{ slug: string }>;
 }
 
-async function getDirectionStory(slug: string) {
-    const storyblokApi = getStoryblokApi();
-    try {
-        const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
-            version: "published",
-            cv: Date.now(),
-        });
-        return data.story;
-
-    } catch (error) {
-        const status = (error as { status?: number })?.status;
-
-        if (status === 404) {
-            notFound();
-        }
-
-        throw new Error(
-            `Failed to load direction "${slug}" from Storyblok (status: ${status ?? "network error"})`,
-        );
-    }
-}
-
-async function getDirectionCourses(directionUuid: string) {
-    const storyblokApi = getStoryblokApi();
-    const { data } = await storyblokApi.get("cdn/stories", {
-        content_type: "course",
-        version: "published",
-        per_page: 100,
-        cv: Date.now(),
-    });
-
-    return (data.stories as CourseStory[])
-        .filter((course) => course.content.direction === directionUuid)
-        .sort((a, b) => Number(a.content.order) - Number(b.content.order));
-}
-
 export default async function DirectionPage({ params }: DirectionPageProps) {
     const { slug } = await params;
-    const story = await getDirectionStory(slug);
-
-    if (story.content.component !== "direction") {
-        notFound();
-    }
-
-    const direction = story as DirectionStory;
-    const directionCourses = await getDirectionCourses(direction.uuid);
+    const direction = await getDirectionBySlug(slug);
+    const directionCourses = await getCoursesByDirection(direction.uuid);
 
     return (
         <main>

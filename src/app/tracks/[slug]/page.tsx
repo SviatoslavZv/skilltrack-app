@@ -1,66 +1,27 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getStoryblokApi } from "@/lib/storyblok";
+import { getCourses, getCourseBySlug } from "@/lib/storyblok-queries";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
-import type { CourseContent } from "@/lib/storyblok-types";
 import { LessonCheckbox } from "@/components/lesson-checkbox";
 import { TrackProgress } from "@/components/track-progress";
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-    const storyblokApi = getStoryblokApi();
-    const { data } = await storyblokApi.get("cdn/stories", {
-        content_type: "course",
-        version: "published",
-        per_page: 100,
-        cv: Date.now(),
-    });
+    const courses = await getCourses();
 
-    return (data.stories as { slug: string }[]).map((story) => ({
-        slug: story.slug,
-    }));
+    return courses.map((course) => ({ slug: course.slug }));
 }
 
 interface TrackPageProps {
     params: Promise<{ slug: string }>;
 }
 
-
-async function getCourseStory(slug: string) {
-    const storyblokApi = getStoryblokApi();
-
-    try {
-        const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
-            version: "published",
-            resolve_relations: "course.direction",
-            cv: Date.now(),
-        });
-
-        return data.story;
-    } catch (error) {
-        const status = (error as { status?: number })?.status;
-
-        if (status === 404) {
-            notFound();
-        }
-
-        throw new Error(
-            `Failed to load course "${slug}" from Storyblok (status: ${status ?? "network error"})`,
-        );
-    }
-}
-
 export default async function TrackPage({ params }: TrackPageProps) {
     const { slug } = await params;
-    const story = await getCourseStory(slug);
+    const story = await getCourseBySlug(slug);
+    const course = story.content;
 
-    if (story.content.component !== "course") {
-        notFound();
-    }
-
-    const course = story.content as CourseContent;
     const sortedLessons = [...course.lessons].sort(
         (a, b) => Number(a.order) - Number(b.order)
     );

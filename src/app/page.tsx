@@ -1,41 +1,16 @@
 import Link from "next/link";
-import { getStoryblokApi } from "@/lib/storyblok";
-import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
+import { getDirections, getCourses } from "@/lib/storyblok-queries";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
 import { TrackProgress } from "@/components/track-progress";
 
 export const revalidate = 3600;
 
-async function getHomeData() {
-  const storyblokApi = getStoryblokApi();
-  const cv = Date.now();
-
-  const [directionsRes, coursesRes] = await Promise.all([
-    storyblokApi.get("cdn/stories", {
-      content_type: "direction",
-      version: "published",
-      per_page: 100,
-      cv,
-    }),
-    storyblokApi.get("cdn/stories", {
-      content_type: "course",
-      version: "published",
-      per_page: 100,
-      cv,
-    }),
-  ]);
-
-  const directions = (directionsRes.data.stories as DirectionStory[]).sort(
-    (a, b) => Number(a.content.order) - Number(b.content.order),
-  );
-  const courses = coursesRes.data.stories as CourseStory[];
-
-  return { directions, courses };
-}
-
 export default async function Home() {
-  const { directions, courses } = await getHomeData();
+  const [directions, courses] = await Promise.all([
+    getDirections(),
+    getCourses(),
+  ]);
 
   return (
     <main>

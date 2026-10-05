@@ -39,3 +39,9 @@ export interface CourseStory {
     lessons: Lesson[];
   };
 }
+
+export interface ResolvedCourseStory {
+  uuid: string;
+  slug: string;
+  content: CourseContent;
+}
