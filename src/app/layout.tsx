@@ -34,6 +34,9 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
   },
+  verification: {
+    google: "e7S4ws94uz-G3OfcT-9Mwrzqe2Vikq56dSCVAkGURKw",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -49,4 +52,4 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </body>
     </html>
   );
-}
+} <meta name="google-site-verification" content="e7S4ws94uz-G3OfcT-9Mwrzqe2Vikq56dSCVAkGURKw" />
