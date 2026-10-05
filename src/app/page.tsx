@@ -1,33 +1,41 @@
 import Link from "next/link";
 import { getStoryblokApi } from "@/lib/storyblok";
 import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
-import { getCacheBuster } from "@/lib/get-cache-buster";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
 import { TrackProgress } from "@/components/track-progress";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
-export default async function Home() {
+async function getHomeData() {
   const storyblokApi = getStoryblokApi();
+  const cv = Date.now();
 
-  const cacheBuster = getCacheBuster();
-  const { data: directionsData } = await storyblokApi.get("cdn/stories", {
-    content_type: "direction",
-    version: "published",
-    ...(cacheBuster !== undefined && { cv: cacheBuster }),
-  });
-  const { data: coursesData } = await storyblokApi.get("cdn/stories", {
-    content_type: "course",
-    version: "published",
-    ...(cacheBuster !== undefined && { cv: cacheBuster }),
-  });
+  const [directionsRes, coursesRes] = await Promise.all([
+    storyblokApi.get("cdn/stories", {
+      content_type: "direction",
+      version: "published",
+      per_page: 100,
+      cv,
+    }),
+    storyblokApi.get("cdn/stories", {
+      content_type: "course",
+      version: "published",
+      per_page: 100,
+      cv,
+    }),
+  ]);
 
-  const directions = (directionsData.stories as DirectionStory[]).sort(
+  const directions = (directionsRes.data.stories as DirectionStory[]).sort(
     (a, b) => Number(a.content.order) - Number(b.content.order),
   );
+  const courses = coursesRes.data.stories as CourseStory[];
 
-  const courses = coursesData.stories as CourseStory[];
+  return { directions, courses };
+}
+
+export default async function Home() {
+  const { directions, courses } = await getHomeData();
 
   return (
     <main>

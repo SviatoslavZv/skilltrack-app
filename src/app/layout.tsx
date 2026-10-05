@@ -3,6 +3,7 @@ import { Crimson_Pro, Work_Sans } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
+import { siteConfig } from "@/lib/site-config";
 
 const crimsonPro = Crimson_Pro({
   variable: "--font-crimson-pro",
@@ -15,8 +16,24 @@ const workSans = Work_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SkillTrack",
-  description: "Curated free resources for learning web development",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

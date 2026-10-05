@@ -3,11 +3,24 @@ import { notFound } from "next/navigation";
 import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
-import { getCacheBuster } from "@/lib/get-cache-buster";
 import { TrackProgress } from "@/components/track-progress";
 import type { DirectionStory, CourseStory } from "@/lib/storyblok-types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+    const storyblokApi = getStoryblokApi();
+    const { data } = await storyblokApi.get("cdn/stories", {
+        content_type: "direction",
+        version: "published",
+        per_page: 100,
+        cv: Date.now(),
+    });
+
+    return (data.stories as { slug: string }[]).map((story) => ({
+        slug: story.slug,
+    }));
+}
 
 interface DirectionPageProps {
     params: Promise<{ slug: string }>;
@@ -15,11 +28,10 @@ interface DirectionPageProps {
 
 async function getDirectionStory(slug: string) {
     const storyblokApi = getStoryblokApi();
-
     try {
         const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
             version: "published",
-            cv: getCacheBuster(),
+            cv: Date.now(),
         });
         return data.story;
 
@@ -36,6 +48,20 @@ async function getDirectionStory(slug: string) {
     }
 }
 
+async function getDirectionCourses(directionUuid: string) {
+    const storyblokApi = getStoryblokApi();
+    const { data } = await storyblokApi.get("cdn/stories", {
+        content_type: "course",
+        version: "published",
+        per_page: 100,
+        cv: Date.now(),
+    });
+
+    return (data.stories as CourseStory[])
+        .filter((course) => course.content.direction === directionUuid)
+        .sort((a, b) => Number(a.content.order) - Number(b.content.order));
+}
+
 export default async function DirectionPage({ params }: DirectionPageProps) {
     const { slug } = await params;
     const story = await getDirectionStory(slug);
@@ -45,17 +71,7 @@ export default async function DirectionPage({ params }: DirectionPageProps) {
     }
 
     const direction = story as DirectionStory;
-    const storyblokApi = getStoryblokApi();
-    const { data: coursesData } = await storyblokApi.get("cdn/stories", {
-        content_type: "course",
-        version: "published",
-        cv: getCacheBuster(),
-    });
-
-    const courses = coursesData.stories as CourseStory[];
-    const directionCourses = courses
-        .filter((course) => course.content.direction === direction.uuid)
-        .sort((a, b) => Number(a.content.order) - Number(b.content.order));
+    const directionCourses = await getDirectionCourses(direction.uuid);
 
     return (
         <main>

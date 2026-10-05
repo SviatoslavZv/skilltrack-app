@@ -4,25 +4,38 @@ import { getStoryblokApi } from "@/lib/storyblok";
 import { formatDuration } from "@/lib/format-duration";
 import { getTotalMinutes } from "@/lib/course-stats";
 import type { CourseContent } from "@/lib/storyblok-types";
-import { getCacheBuster } from "@/lib/get-cache-buster";
 import { LessonCheckbox } from "@/components/lesson-checkbox";
 import { TrackProgress } from "@/components/track-progress";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+    const storyblokApi = getStoryblokApi();
+    const { data } = await storyblokApi.get("cdn/stories", {
+        content_type: "course",
+        version: "published",
+        per_page: 100,
+        cv: Date.now(),
+    });
+
+    return (data.stories as { slug: string }[]).map((story) => ({
+        slug: story.slug,
+    }));
+}
 
 interface TrackPageProps {
     params: Promise<{ slug: string }>;
 }
 
+
 async function getCourseStory(slug: string) {
     const storyblokApi = getStoryblokApi();
 
     try {
-        const cacheBuster = getCacheBuster();
         const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
             version: "published",
             resolve_relations: "course.direction",
-            ...(cacheBuster !== undefined && { cv: cacheBuster }),
+            cv: Date.now(),
         });
 
         return data.story;
