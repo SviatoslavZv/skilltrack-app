@@ -15,7 +15,7 @@ export default async function Home() {
   return (
     <main>
       <header className="bg-dark px-6 py-10 text-on-dark">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-4xl">
           <h1 className="font-serif text-4xl">SkillTrack</h1>
           <p className="mt-2 max-w-lg text-base text-on-dark-muted">
             Free, curated learning tracks for modern web development.
@@ -23,7 +23,7 @@ export default async function Home() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-2xl px-6 py-10">
+      <div className="mx-auto max-w-4xl px-6 py-10">
         <ul className="space-y-2">
           {directions.map((direction) => {
             const directionCourses = courses.filter(

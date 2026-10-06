@@ -11,6 +11,23 @@ function byOrder<T extends { content: { order: string } }>(a: T, b: T) {
   return Number(a.content.order) - Number(b.content.order);
 }
 
+const MEMO_TTL_MS = 10_000;
+const memo = new Map<string, { at: number; value: Promise<unknown> }>();
+
+function memoize<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const hit = memo.get(key);
+
+  if (hit && Date.now() - hit.at < MEMO_TTL_MS) {
+    return hit.value as Promise<T>;
+  }
+
+  const value = load();
+  memo.set(key, { at: Date.now(), value });
+  value.catch(() => memo.delete(key));
+
+  return value;
+}
+
 async function loadStory(slug: string, extraParams: Record<string, string> = {}) {
   const storyblokApi = getStoryblokApi();
 
@@ -35,29 +52,33 @@ async function loadStory(slug: string, extraParams: Record<string, string> = {})
   }
 }
 
-export const getDirections = cache(async () => {
-  const storyblokApi = getStoryblokApi();
-  const { data } = await storyblokApi.get("cdn/stories", {
-    content_type: "direction",
-    version: "published",
-    per_page: 100,
-    cv: Date.now(),
-  });
+export const getDirections = cache(() =>
+  memoize("directions", async () => {
+    const storyblokApi = getStoryblokApi();
+    const { data } = await storyblokApi.get("cdn/stories", {
+      content_type: "direction",
+      version: "published",
+      per_page: 100,
+      cv: Date.now(),
+    });
 
-  return (data.stories as DirectionStory[]).sort(byOrder);
-});
+    return (data.stories as DirectionStory[]).sort(byOrder);
+  }),
+);
 
-export const getCourses = cache(async () => {
-  const storyblokApi = getStoryblokApi();
-  const { data } = await storyblokApi.get("cdn/stories", {
-    content_type: "course",
-    version: "published",
-    per_page: 100,
-    cv: Date.now(),
-  });
+export const getCourses = cache(() =>
+  memoize("courses", async () => {
+    const storyblokApi = getStoryblokApi();
+    const { data } = await storyblokApi.get("cdn/stories", {
+      content_type: "course",
+      version: "published",
+      per_page: 100,
+      cv: Date.now(),
+    });
 
-  return (data.stories as CourseStory[]).sort(byOrder);
-});
+    return (data.stories as CourseStory[]).sort(byOrder);
+  }),
+);
 
 export async function getCoursesByDirection(directionUuid: string) {
   const courses = await getCourses();

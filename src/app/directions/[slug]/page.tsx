@@ -43,7 +43,7 @@ export default async function DirectionPage({ params }: DirectionPageProps) {
     return (
         <main>
             <header className="bg-dark px-6 py-6 text-on-dark">
-                <div className="mx-auto max-w-2xl">
+                <div className="mx-auto max-w-4xl">
                     <h1 className="font-serif text-3xl">{direction.content.title}</h1>
                     <p className="mt-2 max-w-lg text-base text-on-dark-muted">
                         {direction.content.description}
@@ -51,7 +51,7 @@ export default async function DirectionPage({ params }: DirectionPageProps) {
                 </div>
             </header>
 
-            <div className="mx-auto max-w-2xl px-6 py-8">
+            <div className="mx-auto max-w-4xl px-6 py-8">
                 <ul className="space-y-2">
                     {directionCourses.map((course) => {
                         const lessons = course.content.lessons;

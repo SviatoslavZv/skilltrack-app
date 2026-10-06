@@ -45,7 +45,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
     return (
         <main>
             <header className="bg-dark px-6 py-6 text-on-dark">
-                <div className="mx-auto max-w-2xl">
+                <div className="mx-auto max-w-4xl">
                     <Link
                         href={`/directions/${course.direction.slug}`}
                         className="text-sm text-on-dark-muted underline decoration-on-dark-muted/40 underline-offset-2 hover:text-on-dark hover:decoration-on-dark"
@@ -69,7 +69,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
                 </div>
             </header>
 
-            <div className="mx-auto max-w-2xl px-6 py-8">
+            <div className="mx-auto max-w-4xl px-6 py-8">
                 <ol className="space-y-2">
                     {sortedLessons.map((lesson) => (
                         <li
