@@ -37,7 +37,7 @@ export default async function Home() {
             docs, checked by hand. You skip the search and just follow it.
           </p>
 
-          <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-on-dark-muted/20 pt-4 text-center sm:grid-cols-4">
+          <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-on-dark-muted/20 pt-4 text-center sm:text-left sm:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label}>
                 <dt className="font-serif text-xl sm:text-2xl">{stat.value}</dt>

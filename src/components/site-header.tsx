@@ -1,19 +1,15 @@
 import Link from "next/link";
 import { getDirections } from "@/lib/storyblok-queries";
-import { siteConfig } from "@/lib/site-config";
 import { SiteNav } from "@/components/site-nav";
 import type { NavLink } from "@/components/site-nav";
 
 export async function SiteHeader() {
     const directions = await getDirections();
 
-    const links: NavLink[] = [
-        ...directions.map((direction) => ({
-            label: direction.content.title,
-            href: `/directions/${direction.slug}`,
-        })),
-        { label: "GitHub", href: siteConfig.githubUrl, external: true },
-    ];
+    const links: NavLink[] = directions.map((direction) => ({
+        label: direction.content.title,
+        href: `/directions/${direction.slug}`,
+    }));
 
     return (
         <header className="relative border-b border-accent/15 px-6 py-3">

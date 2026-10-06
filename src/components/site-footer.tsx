@@ -1,3 +1,5 @@
+import { siteConfig } from "@/lib/site-config";
+
 export function SiteFooter() {
     return (
         <footer className="bg-dark px-6 py-6 text-on-dark-muted">
@@ -8,8 +10,7 @@ export function SiteFooter() {
                         All linked resources belong to their original creators.
                     </p>
                 </div>
-                <div className="text-right">
-
+                <div className="flex flex-col items-end gap-4 sm:gap-2">
                     <a
                         href="https://ko-fi.com/sviatoslavzv"
                         target="_blank"
@@ -18,17 +19,14 @@ export function SiteFooter() {
                     >
                         Support this project
                     </a>
-                    <p className="mt-2">
-
-                        <a
-                            href="https://github.com/SviatoslavZv/skilltrack-app"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline decoration-on-dark-muted/40 underline-offset-2 hover:text-on-dark hover:decoration-on-dark"
-                        >
-                            View source on GitHub
-                        </a>
-                    </p>
+                    <a
+                        href={siteConfig.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline decoration-on-dark-muted/40 underline-offset-2 hover:text-on-dark hover:decoration-on-dark"
+                    >
+                        View source on GitHub
+                    </a>
                 </div>
             </div>
         </footer>
