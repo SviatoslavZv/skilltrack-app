@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: siteConfig.url },
+    { url: `${siteConfig.url}/how-we-pick` },
     ...directions.map((direction) => ({
       url: `${siteConfig.url}/directions/${direction.slug}`,
     })),

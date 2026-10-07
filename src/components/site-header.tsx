@@ -6,10 +6,13 @@ import type { NavLink } from "@/components/site-nav";
 export async function SiteHeader() {
     const directions = await getDirections();
 
-    const links: NavLink[] = directions.map((direction) => ({
-        label: direction.content.title,
-        href: `/directions/${direction.slug}`,
-    }));
+    const links: NavLink[] = [
+        ...directions.map((direction) => ({
+            label: direction.content.title,
+            href: `/directions/${direction.slug}`,
+        })),
+        { label: "How we pick", href: "/how-we-pick" },
+    ];
 
     return (
         <header className="relative border-b border-accent/15 px-6 py-3">
